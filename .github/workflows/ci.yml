@@ -7,16 +7,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
 
-      - name: Hello code!!
-        run: echo "Hello code!! from ${{ github.repository}} triggered by the ${{github.event_name}} and done by ${{github.actor}}"
+      - name: Install dependencies
+        run: go mod tidy
 
-      - name: second step!
+      - name: Run tests!
         env:
           JOB_CONTEXT: ${{toJson(job)}}
         run: |
+          go test ./internal/platform/server/handler/...
           echo "Job context: $JOB_CONTEXT"
           echo "Done!"
-
-        
+          
