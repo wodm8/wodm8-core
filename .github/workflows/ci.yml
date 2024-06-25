@@ -1,0 +1,22 @@
+name: dev-ci
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: go mod tidy
+
+      - name: Run tests!
+        env:
+          JOB_CONTEXT: ${{toJson(job)}}
+        run: |
+          go test ./internal/platform/server/handler/...
+          echo "Job context: $JOB_CONTEXT"
+          echo "Done!"
+          
