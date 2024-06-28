@@ -1,10 +1,12 @@
 package bootstrap
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
@@ -17,13 +19,15 @@ func Run() error {
 	err := godotenv.Load()
 
 	var (
-		hostServer = os.Getenv("HOST_SERVER")
-		portServer = os.Getenv("PORT_SERVER")
-		dbUser     = os.Getenv("DB_USER")
-		dbPswd     = os.Getenv("DB_PASSWORD")
-		dbHost     = os.Getenv("DB_HOST")
-		dbPort     = os.Getenv("DB_PORT")
-		dbName     = os.Getenv("DB_NAME")
+		hostServer      = os.Getenv("HOST_SERVER")
+		portServer      = os.Getenv("PORT_SERVER")
+		dbUser          = os.Getenv("DB_USER")
+		dbPswd          = os.Getenv("DB_PASSWORD")
+		dbHost          = os.Getenv("DB_HOST")
+		dbPort          = os.Getenv("DB_PORT")
+		dbName          = os.Getenv("DB_NAME")
+		shutdownTimeout = 10 * time.Second
+		dbTimeout       = 5 * time.Second
 	)
 
 	if err != nil {
@@ -36,12 +40,12 @@ func Run() error {
 		log.Fatal("Error db connection", err)
 	}
 
-	exerciseRepository := mysql.NewExerciseRepository(db)
+	exerciseRepository := mysql.NewExerciseRepository(db, dbTimeout)
 
 	portSrv, err := commons.GetenvInt(portServer)
 	if err != nil {
 		log.Fatal("Error loading .env file", err)
 	}
-	srv := server.NewServer(hostServer, portSrv, exerciseRepository)
-	return srv.Run()
+	ctx, srv := server.New(context.Background(), hostServer, portSrv, shutdownTimeout, exerciseRepository)
+	return srv.Run(ctx)
 }

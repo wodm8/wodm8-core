@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/huandu/go-sqlbuilder"
 
@@ -12,13 +13,15 @@ import (
 
 // ExerciseRepository is a Postgresql integral.ExerciseRepository implementation
 type ExerciseRepository struct {
-	db *sql.DB
+	db        *sql.DB
+	dbTimeout time.Duration
 }
 
 // NewExerciseRepository initializes a postgresql-based implementation of integral.ExerciseRepository
-func NewExerciseRepository(db *sql.DB) *ExerciseRepository {
+func NewExerciseRepository(db *sql.DB, dbTimeout time.Duration) *ExerciseRepository {
 	return &ExerciseRepository{
-		db: db,
+		db:        db,
+		dbTimeout: dbTimeout,
 	}
 }
 
@@ -30,10 +33,10 @@ func (r *ExerciseRepository) Save(ctx context.Context, exercise crossfit.Exercis
 		Name: exercise.Name().String(),
 	}).Build()
 
-	fmt.Printf("query: %s\n", query)
-	fmt.Printf("args: %s\n", args)
-	_, err := r.db.ExecContext(ctx, query, args...)
-	fmt.Printf("err: %v\n", err)
+	ctxTimeout, cancel := context.WithTimeout(ctx, r.dbTimeout)
+	defer cancel()
+
+	_, err := r.db.ExecContext(ctxTimeout, query, args...)
 
 	if err != nil {
 		return fmt.Errorf("error saving exercise: %v", err)
