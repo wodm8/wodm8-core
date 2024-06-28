@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  moc-api:
+    build: .
+    environment:
+      - WODM8_DBUSER
+      - WODM8_DBPASSWORD
+      - WODM8_DBHOST
+      - WODM8_DBPORT
+      - WODM8_DBNAME
+      - WODM8_HOSTSERVER=0.0.0.0
+      - WODM8_PORTSERVER
+    ports:
+      - 8080:8080
+
+    

@@ -5,47 +5,43 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/joho/godotenv"
-	"github.com/wodm8/wodm8-core/commons"
+	"github.com/kelseyhightower/envconfig"
 	"github.com/wodm8/wodm8-core/internal/platform/server"
 	"github.com/wodm8/wodm8-core/internal/platform/storage/mysql"
 )
 
 func Run() error {
-	err := godotenv.Load()
-
-	var (
-		hostServer      = os.Getenv("HOST_SERVER")
-		portServer      = os.Getenv("PORT_SERVER")
-		dbUser          = os.Getenv("DB_USER")
-		dbPswd          = os.Getenv("DB_PASSWORD")
-		dbHost          = os.Getenv("DB_HOST")
-		dbPort          = os.Getenv("DB_PORT")
-		dbName          = os.Getenv("DB_NAME")
-		shutdownTimeout = 10 * time.Second
-		dbTimeout       = 5 * time.Second
-	)
-
+	var cfg config
+	err := envconfig.Process("WODM8", &cfg)
 	if err != nil {
-		log.Fatal("Error loading .env file", err)
+		return err
 	}
 
-	mysqlURI := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPswd, dbHost, dbPort, dbName)
+	mysqlURI := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", cfg.DbUser, cfg.DbPassword, cfg.DbHost, cfg.DbPort, cfg.DbName)
 	db, err := sql.Open("mysql", mysqlURI)
 	if err != nil {
 		log.Fatal("Error db connection", err)
 	}
 
-	exerciseRepository := mysql.NewExerciseRepository(db, dbTimeout)
+	exerciseRepository := mysql.NewExerciseRepository(db, cfg.DbTimeout)
 
-	portSrv, err := commons.GetenvInt(portServer)
-	if err != nil {
-		log.Fatal("Error loading .env file", err)
-	}
-	ctx, srv := server.New(context.Background(), hostServer, portSrv, shutdownTimeout, exerciseRepository)
+	ctx, srv := server.New(context.Background(), cfg.HostServer, cfg.PortServer, cfg.ShutdownTimeout, exerciseRepository)
 	return srv.Run(ctx)
+}
+
+type config struct {
+	//Server config
+	HostServer      string
+	PortServer      int
+	ShutdownTimeout time.Duration `default:"10s"`
+	//DB config
+	DbUser     string
+	DbPassword string
+	DbHost     string
+	DbPort     int
+	DbName     string
+	DbTimeout  time.Duration `default:"5s"`
 }

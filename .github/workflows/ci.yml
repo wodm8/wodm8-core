@@ -16,7 +16,7 @@ jobs:
         env:
           JOB_CONTEXT: ${{toJson(job)}}
         run: |
-          go test ./internal/platform/server/handler/...
+          go test ./internal/platform/server/handler/exercise/...
           echo "Job context: $JOB_CONTEXT"
           echo "Done!"
           

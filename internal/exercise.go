@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/google/uuid"
 )
 
@@ -14,7 +15,6 @@ type ExerciseId struct {
 }
 
 func NewExerciseId(value string) (ExerciseId, error) {
-	fmt.Printf("value for id: %s\n", value)
 	v, err := uuid.Parse(value)
 	if err != nil {
 		return ExerciseId{}, fmt.Errorf("%w: %s", ErrInvalidExerciseID, value)
