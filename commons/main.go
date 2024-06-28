@@ -1,7 +1,6 @@
 package commons
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/google/uuid"
@@ -17,6 +16,5 @@ func GetenvInt(key string) (int, error) {
 
 func CreateUuID() string {
 	id := uuid.New()
-	fmt.Println(id.String())
 	return id.String()
 }

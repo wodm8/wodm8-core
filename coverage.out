@@ -1,0 +1,9 @@
+mode: set
+github.com/wodm8/wodm8-core/internal/platform/server/handler/exercise/create.go:15.84,16.32 1 1
+github.com/wodm8/wodm8-core/internal/platform/server/handler/exercise/create.go:16.32,19.50 2 1
+github.com/wodm8/wodm8-core/internal/platform/server/handler/exercise/create.go:19.50,22.4 2 1
+github.com/wodm8/wodm8-core/internal/platform/server/handler/exercise/create.go:24.3,25.17 2 0
+github.com/wodm8/wodm8-core/internal/platform/server/handler/exercise/create.go:25.17,28.4 2 0
+github.com/wodm8/wodm8-core/internal/platform/server/handler/exercise/create.go:29.3,29.64 1 0
+github.com/wodm8/wodm8-core/internal/platform/server/handler/exercise/create.go:29.64,32.4 2 0
+github.com/wodm8/wodm8-core/internal/platform/server/handler/exercise/create.go:34.3,34.33 1 0

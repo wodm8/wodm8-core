@@ -26,7 +26,6 @@ func NewExerciseRepository(db *sql.DB, dbTimeout time.Duration) *ExerciseReposit
 }
 
 func (r *ExerciseRepository) Save(ctx context.Context, exercise crossfit.Exercise) error {
-	fmt.Printf("ex_name: %s\n", exercise.Name())
 	exerciseSQLStruct := sqlbuilder.NewStruct(new(sqlExercise))
 	query, args := exerciseSQLStruct.InsertInto(sqlExerciseTable, sqlExercise{
 		ID:   exercise.ID().String(),
