@@ -35,15 +35,11 @@ func (r *WodRepository) Save(ctx context.Context, wod crossfit.Wod) error {
 	ctxTimeout, cancel := context.WithTimeout(ctx, r.dbTimeout)
 	defer cancel()
 
-	fmt.Printf("**query: %v\n", query)
-	fmt.Printf("**args: %v\n", args)
-	result, err := r.db.ExecContext(ctxTimeout, `-- name: InsertWod :execresult
-INSERT INTO WOD (id, wod_name, rounds, number_sections, timer_type_id) VALUES (?, ?, ?, ?, ?)`, wod.ID().String(), wod.Name().String(), wod.Rounds().Int(), wod.NumberSections().Int(), wod.TimerType().Int())
+	_, err := r.db.ExecContext(ctxTimeout, query, args...)
 
-	fmt.Printf("result: %v\n", result)
-	fmt.Printf("error saving wod: %v\n", err)
 	if err != nil {
-		return fmt.Errorf("error saving wod: %v", err)
+		fmt.Printf("error saving wod: %v", err)
+		return err
 	}
 	return nil
 }
