@@ -5,7 +5,7 @@ compose-build:
 	docker-compose build
 
 compose-up:
-	docker-compose up
+	docker-compose up -d
 
 build:
 	CGO_ENABLED=0 go build -o ${BINARY_NAME} main.go
