@@ -22,18 +22,20 @@ type Server struct {
 	shutdownTimeout time.Duration
 
 	//deps
-	exerciseRepository crossfit.ExerciseRepository
-	wodRepository      crossfit.WodRepository
+	exerciseRepository    crossfit.ExerciseRepository
+	wodRepository         crossfit.WodRepository
+	exerciseWodRepository crossfit.ExerciseWodRepository
 }
 
-func New(ctx context.Context, host string, port int, shutdownTimeout time.Duration, exerciseRepository crossfit.ExerciseRepository, wodRepository crossfit.WodRepository) (context.Context, Server) {
+func New(ctx context.Context, host string, port int, shutdownTimeout time.Duration, exerciseRepository crossfit.ExerciseRepository, wodRepository crossfit.WodRepository, exerciseWodRepository crossfit.ExerciseWodRepository) (context.Context, Server) {
 	srv := Server{
 		engine:          gin.Default(),
 		httpAddr:        fmt.Sprintf("%s:%d", host, port),
 		shutdownTimeout: shutdownTimeout,
 
-		exerciseRepository: exerciseRepository,
-		wodRepository:      wodRepository,
+		exerciseRepository:    exerciseRepository,
+		wodRepository:         wodRepository,
+		exerciseWodRepository: exerciseWodRepository,
 	}
 
 	srv.registerRoutes()
@@ -43,7 +45,7 @@ func New(ctx context.Context, host string, port int, shutdownTimeout time.Durati
 func (s *Server) registerRoutes() {
 	s.engine.GET("/health", health.CheckHandler())
 	s.engine.POST("/api/v1/exercises", exercise.CreateHandler(s.exerciseRepository))
-	s.engine.POST("/api/v1/wod", wod.CreateWodHandler(s.wodRepository))
+	s.engine.POST("/api/v1/wod", wod.CreateWodHandler(s.wodRepository, s.exerciseWodRepository))
 }
 
 func (s *Server) Run(ctx context.Context) error {
