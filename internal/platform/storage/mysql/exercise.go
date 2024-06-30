@@ -1,7 +1,7 @@
 package mysql
 
 const (
-	sqlExerciseTable = "exercise"
+	sqlExerciseTable = "EXERCISE"
 )
 
 type sqlExercise struct {

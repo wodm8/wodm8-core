@@ -27,8 +27,9 @@ func Run() error {
 	}
 
 	exerciseRepository := mysql.NewExerciseRepository(db, cfg.DbTimeout)
+	wodRepository := mysql.NewWodRepository(db, cfg.DbTimeout)
 
-	ctx, srv := server.New(context.Background(), cfg.HostServer, cfg.PortServer, cfg.ShutdownTimeout, exerciseRepository)
+	ctx, srv := server.New(context.Background(), cfg.HostServer, cfg.PortServer, cfg.ShutdownTimeout, exerciseRepository, wodRepository)
 	return srv.Run(ctx)
 }
 

@@ -1,7 +1,7 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  moc-api:
+  wodm8-api:
     build: .
     environment:
       - WODM8_DBUSER
@@ -13,5 +13,3 @@ services:
       - WODM8_PORTSERVER
     ports:
       - 8080:8080
-
-    
