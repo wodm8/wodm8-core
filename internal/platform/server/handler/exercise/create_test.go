@@ -3,23 +3,24 @@ package exercise
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/gin-gonic/gin"
-	"github.com/huandu/go-assert"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
-	"github.com/wodm8/wodm8-core/internal/creating"
-	"github.com/wodm8/wodm8-core/internal/platform/storage/storagemocks"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/gin-gonic/gin"
+	"github.com/huandu/go-assert"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
+	"github.com/wodm8/wodm8-core/internal/application"
+	"github.com/wodm8/wodm8-core/internal/platform/storage/storagemocks"
 )
 
 func TestHandler_create(t *testing.T) {
 	exerciseRepository := new(storagemocks.ExerciseRepository)
 	exerciseRepository.On("Save", mock.Anything, mock.Anything).Return(nil)
 
-	exerciseServer := creating.NewExerciseService(exerciseRepository)
+	exerciseServer := application.NewExerciseService(exerciseRepository)
 
 	gin.SetMode(gin.TestMode)
 	r := gin.New()

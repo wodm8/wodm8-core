@@ -4,9 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/wodm8/wodm8-core/internal/creating"
 	"log"
 	"time"
+
+	"github.com/wodm8/wodm8-core/internal/application"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/kelseyhightower/envconfig"
@@ -30,9 +31,11 @@ func Run() error {
 	exerciseRepository := mysql.NewExerciseRepository(db, cfg.DbTimeout)
 	wodRepository := mysql.NewWodRepository(db, cfg.DbTimeout)
 	exerciseWodRepository := mysql.NewExerciseWodRepository(db, cfg.DbTimeout)
+	wodSetRepository := mysql.NewWodSetRepository(db, cfg.DbTimeout)
+	wodRoundRepository := mysql.NewWodRoundRepository(db, cfg.DbTimeout)
 
-	exerciseService := creating.NewExerciseService(exerciseRepository)
-	wodService := creating.NewWodService(wodRepository, exerciseWodRepository)
+	exerciseService := application.NewExerciseService(exerciseRepository)
+	wodService := application.NewWodService(wodRepository, wodSetRepository, wodRoundRepository, exerciseWodRepository)
 
 	ctx, srv := server.New(context.Background(), cfg.HostServer, cfg.PortServer, cfg.ShutdownTimeout, wodService, exerciseService)
 	return srv.Run(ctx)
