@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/wodm8/wodm8-core/internal/creating"
 	"log"
 	"time"
 
@@ -30,7 +31,10 @@ func Run() error {
 	wodRepository := mysql.NewWodRepository(db, cfg.DbTimeout)
 	exerciseWodRepository := mysql.NewExerciseWodRepository(db, cfg.DbTimeout)
 
-	ctx, srv := server.New(context.Background(), cfg.HostServer, cfg.PortServer, cfg.ShutdownTimeout, exerciseRepository, wodRepository, exerciseWodRepository)
+	exerciseService := creating.NewExerciseService(exerciseRepository)
+	wodService := creating.NewWodService(wodRepository, exerciseWodRepository)
+
+	ctx, srv := server.New(context.Background(), cfg.HostServer, cfg.PortServer, cfg.ShutdownTimeout, wodService, exerciseService)
 	return srv.Run(ctx)
 }
 

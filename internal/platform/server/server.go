@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/wodm8/wodm8-core/internal/creating"
 	"log"
 	"net/http"
 	"os"
@@ -10,7 +11,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	crossfit "github.com/wodm8/wodm8-core/internal"
 	"github.com/wodm8/wodm8-core/internal/platform/server/handler/exercise"
 	"github.com/wodm8/wodm8-core/internal/platform/server/handler/health"
 	"github.com/wodm8/wodm8-core/internal/platform/server/handler/wod"
@@ -21,21 +21,18 @@ type Server struct {
 	engine          *gin.Engine
 	shutdownTimeout time.Duration
 
-	//deps
-	exerciseRepository    crossfit.ExerciseRepository
-	wodRepository         crossfit.WodRepository
-	exerciseWodRepository crossfit.ExerciseWodRepository
+	wodService      creating.WodService
+	exerciseService creating.ExerciseService
 }
 
-func New(ctx context.Context, host string, port int, shutdownTimeout time.Duration, exerciseRepository crossfit.ExerciseRepository, wodRepository crossfit.WodRepository, exerciseWodRepository crossfit.ExerciseWodRepository) (context.Context, Server) {
+func New(ctx context.Context, host string, port int, shutdownTimeout time.Duration, wodService creating.WodService, exerciseService creating.ExerciseService) (context.Context, Server) {
 	srv := Server{
 		engine:          gin.Default(),
 		httpAddr:        fmt.Sprintf("%s:%d", host, port),
 		shutdownTimeout: shutdownTimeout,
 
-		exerciseRepository:    exerciseRepository,
-		wodRepository:         wodRepository,
-		exerciseWodRepository: exerciseWodRepository,
+		wodService:      wodService,
+		exerciseService: exerciseService,
 	}
 
 	srv.registerRoutes()
@@ -44,8 +41,8 @@ func New(ctx context.Context, host string, port int, shutdownTimeout time.Durati
 
 func (s *Server) registerRoutes() {
 	s.engine.GET("/health", health.CheckHandler())
-	s.engine.POST("/api/v1/exercises", exercise.CreateHandler(s.exerciseRepository))
-	s.engine.POST("/api/v1/wod", wod.CreateWodHandler(s.wodRepository, s.exerciseWodRepository))
+	s.engine.POST("/api/v1/exercises", exercise.CreateHandler(s.exerciseService))
+	s.engine.POST("/api/v1/wod", wod.CreateWodHandler(s.wodService))
 }
 
 func (s *Server) Run(ctx context.Context) error {

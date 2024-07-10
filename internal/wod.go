@@ -151,7 +151,7 @@ type WodRepository interface {
 	Save(ctx context.Context, wod Wod) error
 }
 
-//go:generate mockery --case=snake --outpkg=storagemocks --output=platform/storage/storagemocks --name=ExerciseRepository
+//go:generate mockery --case=snake --outpkg=storagemocks --output=platform/storage/storagemocks --name=WodRepository
 
 func (w Wod) ID() WodId {
 	return w.id
