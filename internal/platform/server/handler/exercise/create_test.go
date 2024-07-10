@@ -7,7 +7,9 @@ import (
 	"github.com/huandu/go-assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"github.com/wodm8/wodm8-core/internal/creating"
 	"github.com/wodm8/wodm8-core/internal/platform/storage/storagemocks"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -17,9 +19,12 @@ func TestHandler_create(t *testing.T) {
 	exerciseRepository := new(storagemocks.ExerciseRepository)
 	exerciseRepository.On("Save", mock.Anything, mock.Anything).Return(nil)
 
+	exerciseServer := creating.NewExerciseService(exerciseRepository)
+
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
-	r.POST("/api/v1/exercises", CreateHandler(exerciseRepository))
+
+	r.POST("/api/v1/exercises", CreateHandler(exerciseServer))
 
 	t.Run("given an invalid request it return 400", func(t *testing.T) {
 		createExerciseReq := createRequest{}
@@ -34,7 +39,12 @@ func TestHandler_create(t *testing.T) {
 		r.ServeHTTP(rec, req)
 
 		res := rec.Result()
-		defer res.Body.Close()
+		defer func(Body io.ReadCloser) {
+			err := Body.Close()
+			if err != nil {
+
+			}
+		}(res.Body)
 
 		assert.Equal(t, http.StatusBadRequest, res.StatusCode)
 	})
