@@ -5,9 +5,8 @@ const (
 )
 
 type sqlWod struct {
-	ID             string `db:"id"`
-	Name           string `db:"wod_name"`
-	Rounds         int32  `db:"rounds"`
-	NumberSections int32  `db:"number_sections"`
-	TimerTypeId    int32  `db:"timer_type_id"`
+	ID        string `db:"id"`
+	Name      string `db:"name"`
+	WodDate   string `db:"wod_date"`
+	WodTypeId int32  `db:"wod_type_id"`
 }

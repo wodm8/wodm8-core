@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"fmt"
-	"github.com/wodm8/wodm8-core/internal/creating"
 	"log"
 	"net/http"
 	"os"
@@ -11,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/wodm8/wodm8-core/internal/application"
 	"github.com/wodm8/wodm8-core/internal/platform/server/handler/exercise"
 	"github.com/wodm8/wodm8-core/internal/platform/server/handler/health"
 	"github.com/wodm8/wodm8-core/internal/platform/server/handler/wod"
@@ -21,11 +21,11 @@ type Server struct {
 	engine          *gin.Engine
 	shutdownTimeout time.Duration
 
-	wodService      creating.WodService
-	exerciseService creating.ExerciseService
+	wodService      application.WodService
+	exerciseService application.ExerciseService
 }
 
-func New(ctx context.Context, host string, port int, shutdownTimeout time.Duration, wodService creating.WodService, exerciseService creating.ExerciseService) (context.Context, Server) {
+func New(ctx context.Context, host string, port int, shutdownTimeout time.Duration, wodService application.WodService, exerciseService application.ExerciseService) (context.Context, Server) {
 	srv := Server{
 		engine:          gin.Default(),
 		httpAddr:        fmt.Sprintf("%s:%d", host, port),
@@ -43,6 +43,7 @@ func (s *Server) registerRoutes() {
 	s.engine.GET("/health", health.CheckHandler())
 	s.engine.POST("/api/v1/exercises", exercise.CreateHandler(s.exerciseService))
 	s.engine.POST("/api/v1/wod", wod.CreateWodHandler(s.wodService))
+	s.engine.GET("/api/v1/wod", wod.GetWodHandler(s.wodService))
 }
 
 func (s *Server) Run(ctx context.Context) error {

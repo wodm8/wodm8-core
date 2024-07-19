@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/huandu/go-sqlbuilder"
+	"github.com/wodm8/wodm8-core/internal/crossfit"
 
-	crossfit "github.com/wodm8/wodm8-core/internal"
+	"github.com/huandu/go-sqlbuilder"
 )
 
 // ExerciseRepository is a Postgresql integral.ExerciseRepository implementation
@@ -28,7 +28,6 @@ func NewExerciseRepository(db *sql.DB, dbTimeout time.Duration) *ExerciseReposit
 func (r *ExerciseRepository) Save(ctx context.Context, exercise crossfit.Exercise) error {
 	exerciseSQLStruct := sqlbuilder.NewStruct(new(sqlExercise))
 	query, args := exerciseSQLStruct.InsertInto(sqlExerciseTable, sqlExercise{
-		ID:   exercise.ID().String(),
 		Name: exercise.Name().String(),
 	}).Build()
 

@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/wodm8/wodm8-core/internal/crossfit"
+
 	"github.com/huandu/go-sqlbuilder"
-	crossfit "github.com/wodm8/wodm8-core/internal"
 )
 
 type ExerciseWodRepository struct {
@@ -25,15 +26,17 @@ func NewExerciseWodRepository(db *sql.DB, dbTimeout time.Duration) *ExerciseWodR
 func (r *ExerciseWodRepository) Save(ctx context.Context, exerciseWod crossfit.ExerciseWod) error {
 	exerciseWodSQLStruct := sqlbuilder.NewStruct(new(sqlExerciseWod))
 	query, args := exerciseWodSQLStruct.InsertInto(sqlExerciseWodTable, sqlExerciseWod{
-		ID:                 exerciseWod.ID().String(),
-		WodID:              exerciseWod.WodID().String(),
-		ExerciseID:         exerciseWod.ExerciseID().String(),
-		Reps:               exerciseWod.Repetitions().Int(),
-		Weight:             exerciseWod.Weight().Float(),
-		WeightUnit:         exerciseWod.WeightUnit().String(),
-		WodSection:         exerciseWod.Section().Int(),
-		SectionTimerTypeID: exerciseWod.TimerType().Int(),
-		SectionCap:         exerciseWod.Cap().Int(),
+		ID:              exerciseWod.ID().String(),
+		WodID:           exerciseWod.WodID().String(),
+		ExerciseID:      exerciseWod.ExerciseID().Int(),
+		RoundNumber:     exerciseWod.RoundNumber().Int(),
+		SetNumber:       exerciseWod.SetNumber().Int(),
+		Repetitions:     exerciseWod.Repetitions().Int(),
+		RepetitionsUnit: exerciseWod.RepetitionsUnit().String(),
+		Weight:          exerciseWod.Weight().Float(),
+		WeightUnit:      exerciseWod.WeightUnit().String(),
+		Distance:        exerciseWod.Distance().Float(),
+		DistanceUnit:    exerciseWod.DistanceUnit().String(),
 	}).Build()
 
 	ctxTimeout, cancel := context.WithTimeout(ctx, r.dbTimeout)
