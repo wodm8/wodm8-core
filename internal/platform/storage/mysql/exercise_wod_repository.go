@@ -1,52 +1,28 @@
 package mysql
 
 import (
-	"context"
-	"database/sql"
 	"fmt"
-	"time"
 
 	"github.com/wodm8/wodm8-core/internal/crossfit"
-
-	"github.com/huandu/go-sqlbuilder"
+	"gorm.io/gorm"
 )
 
 type ExerciseWodRepository struct {
-	db        *sql.DB
-	dbTimeout time.Duration
+	db *gorm.DB
 }
 
-func NewExerciseWodRepository(db *sql.DB, dbTimeout time.Duration) *ExerciseWodRepository {
+func NewExerciseWodRepository(db *gorm.DB) *ExerciseWodRepository {
 	return &ExerciseWodRepository{
-		db:        db,
-		dbTimeout: dbTimeout,
+		db: db,
 	}
 }
 
-func (r *ExerciseWodRepository) Save(ctx context.Context, exerciseWod crossfit.ExerciseWod) error {
-	exerciseWodSQLStruct := sqlbuilder.NewStruct(new(sqlExerciseWod))
-	query, args := exerciseWodSQLStruct.InsertInto(sqlExerciseWodTable, sqlExerciseWod{
-		ID:              exerciseWod.ID().String(),
-		WodID:           exerciseWod.WodID().String(),
-		ExerciseID:      exerciseWod.ExerciseID().Int(),
-		RoundNumber:     exerciseWod.RoundNumber().Int(),
-		SetNumber:       exerciseWod.SetNumber().Int(),
-		Repetitions:     exerciseWod.Repetitions().Int(),
-		RepetitionsUnit: exerciseWod.RepetitionsUnit().String(),
-		Weight:          exerciseWod.Weight().Float(),
-		WeightUnit:      exerciseWod.WeightUnit().String(),
-		Distance:        exerciseWod.Distance().Float(),
-		DistanceUnit:    exerciseWod.DistanceUnit().String(),
-	}).Build()
+func (r *ExerciseWodRepository) Save(exerciseWod crossfit.ExerciseWod) error {
+	result := r.db.Create(&exerciseWod)
 
-	ctxTimeout, cancel := context.WithTimeout(ctx, r.dbTimeout)
-	defer cancel()
-
-	_, err := r.db.ExecContext(ctxTimeout, query, args...)
-
-	if err != nil {
-		fmt.Printf("error saving exercise wod: %v", err)
-		return err
+	if result.Error != nil {
+		fmt.Printf("error saving exercise wod: %v", result.Error)
+		return result.Error
 	}
 	return nil
 }
