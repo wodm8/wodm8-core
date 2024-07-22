@@ -52,3 +52,16 @@ type CriteriaRequest struct {
 	orderBy string            `json:"order_by" binding:"required"`
 	order   string            `json:"order" binding:"required"`
 }
+
+type CreateUserRequest struct {
+	Id        string `json:"id" binding:"required"`
+	FirstName string `json:"first_name" binding:"required"`
+	LastName  string `json:"last_name" binding:"required"`
+	Email     string `json:"email" binding:"required"`
+	Password  string `json:"password" binding:"required"`
+}
+
+type LoginRequest struct {
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}

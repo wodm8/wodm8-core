@@ -3,6 +3,8 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/wodm8/wodm8-core/internal/platform/server/handler/users"
+	"github.com/wodm8/wodm8-core/kit"
 	"log"
 	"net/http"
 	"os"
@@ -23,9 +25,10 @@ type Server struct {
 
 	wodService      application.WodService
 	exerciseService application.ExerciseService
+	usersService    application.UsersService
 }
 
-func New(ctx context.Context, host string, port int, shutdownTimeout time.Duration, wodService application.WodService, exerciseService application.ExerciseService) (context.Context, Server) {
+func New(ctx context.Context, host string, port int, shutdownTimeout time.Duration, wodService application.WodService, exerciseService application.ExerciseService, usersService application.UsersService) (context.Context, Server) {
 	srv := Server{
 		engine:          gin.Default(),
 		httpAddr:        fmt.Sprintf("%s:%d", host, port),
@@ -33,6 +36,7 @@ func New(ctx context.Context, host string, port int, shutdownTimeout time.Durati
 
 		wodService:      wodService,
 		exerciseService: exerciseService,
+		usersService:    usersService,
 	}
 
 	srv.registerRoutes()
@@ -41,9 +45,12 @@ func New(ctx context.Context, host string, port int, shutdownTimeout time.Durati
 
 func (s *Server) registerRoutes() {
 	s.engine.GET("/health", health.CheckHandler())
-	s.engine.POST("/api/v1/exercises", exercise.CreateHandler(s.exerciseService))
-	s.engine.POST("/api/v1/wod", wod.CreateWodHandler(s.wodService))
-	s.engine.GET("/api/v1/wod", wod.GetWodHandler(s.wodService))
+	s.engine.POST("/signup", users.UserSignUpHandler(s.usersService))
+	s.engine.POST("/login", users.UserLoginHandler(s.usersService))
+	s.engine.POST("/api/v1/exercises", kit.RequireAuth, exercise.CreateHandler(s.exerciseService))
+	s.engine.POST("/api/v1/wod", kit.RequireAuth, wod.CreateWodHandler(s.wodService))
+	s.engine.GET("/api/v1/wod", kit.RequireAuth, wod.GetWodHandler(s.wodService))
+	s.engine.GET("/validate", kit.RequireAuth, users.VerifyTokenHandler())
 }
 
 func (s *Server) Run(ctx context.Context) error {
