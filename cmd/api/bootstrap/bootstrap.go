@@ -2,17 +2,18 @@ package bootstrap
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/wodm8/wodm8-core/internal/application"
+	"gorm.io/driver/mysql"
+	_ "gorm.io/driver/mysql"
+	"gorm.io/gorm"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/wodm8/wodm8-core/internal/platform/server"
-	"github.com/wodm8/wodm8-core/internal/platform/storage/mysql"
+	storage "github.com/wodm8/wodm8-core/internal/platform/storage/mysql"
 )
 
 func Run() error {
@@ -22,19 +23,20 @@ func Run() error {
 		return err
 	}
 
-	mysqlURI := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", cfg.DbUser, cfg.DbPassword, cfg.DbHost, cfg.DbPort, cfg.DbName)
-	db, err := sql.Open("mysql", mysqlURI)
+	mysqlURI := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", cfg.DbUser, cfg.DbPassword, cfg.DbHost, cfg.DbPort, cfg.DbName)
+	db, err := gorm.Open(mysql.Open(mysqlURI), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Error db connection", err)
 	}
 
-	exerciseRepository := mysql.NewExerciseRepository(db, cfg.DbTimeout)
-	wodRepository := mysql.NewWodRepository(db, cfg.DbTimeout)
-	exerciseWodRepository := mysql.NewExerciseWodRepository(db, cfg.DbTimeout)
-	wodSetRepository := mysql.NewWodSetRepository(db, cfg.DbTimeout)
-	wodRoundRepository := mysql.NewWodRoundRepository(db, cfg.DbTimeout)
+	exerciseRepository := storage.NewExerciseRepository(db)
+	wodRepository := storage.NewWodRepository(db)
+	exerciseWodRepository := storage.NewExerciseWodRepository(db)
+	wodSetRepository := storage.NewWodSetRepository(db)
+	wodRoundRepository := storage.NewWodRoundRepository(db)
 
 	exerciseService := application.NewExerciseService(exerciseRepository)
+
 	wodService := application.NewWodService(wodRepository, wodSetRepository, wodRoundRepository, exerciseWodRepository)
 
 	ctx, srv := server.New(context.Background(), cfg.HostServer, cfg.PortServer, cfg.ShutdownTimeout, wodService, exerciseService)

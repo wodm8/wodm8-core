@@ -2,6 +2,7 @@ package application
 
 import (
 	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/wodm8/wodm8-core/internal/crossfit"
@@ -24,7 +25,7 @@ func (w ExerciseService) CreateExercise(ctx *gin.Context, exerciseName string) e
 		return err
 	}
 
-	return w.exerciseRepository.Save(ctx, exercise)
+	return w.exerciseRepository.Save(exercise)
 }
 
 type WodService struct {
@@ -45,12 +46,11 @@ func NewWodService(wodRepository crossfit.WodRepository, setRepository crossfit.
 
 func (w WodService) CreateWod(ctx *gin.Context, wodDto domain.CreateWodRequest) error {
 	wod, err := crossfit.NewWod(wodDto.ID, wodDto.Name, wodDto.WodDate, wodDto.WodTypeId)
-	fmt.Printf("Error: %v\n", err)
 	if err != nil {
 		return err
 	}
 
-	if err := w.wodRepository.Save(ctx, wod); err != nil {
+	if err := w.wodRepository.Save(wod); err != nil {
 		return err
 	}
 
@@ -60,12 +60,12 @@ func (w WodService) CreateWod(ctx *gin.Context, wodDto domain.CreateWodRequest) 
 			return err
 		}
 
-		wodSet, err := crossfit.NewWodSet(idSet.String(), wod.ID().String(), set.SetNumber, set.BuyIn, set.BuyOut, set.EveryMinutes, set.RepsToAddByRound, set.RestTime, set.IsThen)
+		wodSet, err := crossfit.NewWodSet(idSet.String(), wod.ID, set.SetNumber, set.BuyIn, set.BuyOut, set.EveryMinutes, set.RepsToAddByRound, set.RestTime, set.IsThen)
 		if err != nil {
 			return err
 		}
 
-		if err := w.setRepository.Save(ctx, wodSet); err != nil {
+		if err := w.setRepository.Save(wodSet); err != nil {
 			return err
 		}
 	}
@@ -76,17 +76,16 @@ func (w WodService) CreateWod(ctx *gin.Context, wodDto domain.CreateWodRequest) 
 			return err
 		}
 
-		wodRound, err := crossfit.NewWodRound(idRound.String(), wod.ID().String(), round.SetNumber, round.RoundNumber, round.RepetitionsByRound, round.Time, round.RestTime, round.RemainingTime)
+		wodRound, err := crossfit.NewWodRound(idRound.String(), wod.ID, round.SetNumber, round.RoundNumber, round.RepetitionsByRound, round.Time, round.RestTime, round.RemainingTime)
 		if err != nil {
 			return err
 		}
-		if err := w.roundsRepository.Save(ctx, wodRound); err != nil {
+		if err := w.roundsRepository.Save(wodRound); err != nil {
 			return err
 		}
 	}
 
 	for _, exercise := range wodDto.Exercises {
-		fmt.Println(exercise)
 
 		id, err := uuid.NewRandom()
 		if err != nil {
@@ -95,8 +94,8 @@ func (w WodService) CreateWod(ctx *gin.Context, wodDto domain.CreateWodRequest) 
 
 		exerciseWod, err := crossfit.NewExerciseWod(
 			id.String(),
-			wod.ID().String(),
-			exercise.ID,
+			wod.ID,
+			exercise.ExerciseId,
 			exercise.SetNumber,
 			exercise.RoundNumber,
 			exercise.Repetitions,
@@ -109,18 +108,18 @@ func (w WodService) CreateWod(ctx *gin.Context, wodDto domain.CreateWodRequest) 
 			return err
 		}
 
-		if err := w.exerciseWodRepository.Save(ctx, exerciseWod); err != nil {
+		if err := w.exerciseWodRepository.Save(exerciseWod); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (w WodService) GetWod(ctx *gin.Context, id string) ([]domain.WodResult, error) {
-	res, err := w.wodRepository.Get(ctx, id)
+func (w WodService) GetWod(ctx *gin.Context, id string) ([]domain.CreatedWod, error) {
+	res, err := w.wodRepository.Get(id)
 	if err != nil {
 		fmt.Printf("error getting wod: %v", err)
-		return make([]domain.WodResult, 0), err
+		return make([]domain.CreatedWod, 0), err
 	}
 
 	return res, nil

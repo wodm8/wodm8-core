@@ -1,29 +1,29 @@
 package domain
 
 type WodSets struct {
-	SetNumber        int32 `json:"set_number" binding:"required"`
-	BuyIn            int32 `json:"buy_in"`
-	BuyOut           int32 `json:"buy_out"`
-	EveryMinutes     int32 `json:"every_minutes"`
-	RepsToAddByRound int32 `json:"reps_to_add_by_round"`
-	RestTime         int32 `json:"rest_time"`
-	IsThen           bool  `json:"is_then"`
+	SetNumber        uint8  `json:"set_number" binding:"required"`
+	BuyIn            uint16 `json:"buy_in"`
+	BuyOut           uint16 `json:"buy_out"`
+	EveryMinutes     uint32 `json:"every_minutes"`
+	RepsToAddByRound uint16 `json:"reps_to_add_by_round"`
+	RestTime         uint32 `json:"rest_time"`
+	IsThen           bool   `json:"is_then"`
 }
 
 type WodRounds struct {
-	SetNumber          int32 `json:"set_number" binding:"required"`
-	RoundNumber        int32 `json:"round_number" binding:"required"`
-	RepetitionsByRound int32 `json:"repetitions_by_round"`
-	Time               int32 `json:"time"`
-	RestTime           int32 `json:"rest_time"`
-	RemainingTime      bool  `json:"remaining_Time"`
+	SetNumber          uint8  `json:"set_number" binding:"required"`
+	RoundNumber        uint8  `json:"round_number" binding:"required"`
+	RepetitionsByRound uint16 `json:"repetitions_by_round"`
+	Time               uint32 `json:"time"`
+	RestTime           uint32 `json:"rest_time"`
+	RemainingTime      bool   `json:"remaining_Time"`
 }
 
 type ExerciseInWod struct {
-	ID              int32   `json:"id" binding:"required"`
-	SetNumber       int32   `json:"set_number" binding:"required"`
-	RoundNumber     int32   `json:"round_number" binding:"required"`
-	Repetitions     int32   `json:"repetitions" binding:"required"`
+	ExerciseId      uint16  `json:"exercise_id" binding:"required"`
+	SetNumber       uint8   `json:"set_number" binding:"required"`
+	RoundNumber     uint8   `json:"round_number" binding:"required"`
+	Repetitions     uint16  `json:"repetitions" binding:"required"`
 	RepetitionsUnit string  `json:"repetitions_unit" binding:"required"`
 	Weight          float32 `json:"weight"`
 	WeightUnit      string  `json:"weight_unit"`
@@ -35,7 +35,7 @@ type CreateWodRequest struct {
 	ID        string          `json:"id" binding:"required"`
 	Name      string          `json:"name" binding:"required"`
 	WodDate   string          `json:"wod_date"`
-	WodTypeId int32           `json:"wod_type_id" binding:"required"`
+	WodTypeId uint8           `json:"wod_type_id" binding:"required"`
 	Sets      []WodSets       `json:"sets" binding:"required"`
 	Rounds    []WodRounds     `json:"rounds" binding:"required"`
 	Exercises []ExerciseInWod `json:"exercises" binding:"required"`

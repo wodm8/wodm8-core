@@ -1,8 +1,8 @@
 package domain
 
-type WodResult struct {
-	WodId                  string  `json:"id"`
-	WodName                string  `json:"name"`
+type CreatedWod struct {
+	WodId                  string  `json:"wod_id"`
+	WodName                string  `json:"wod_name"`
 	WodType                string  `json:"wod_type"`
 	TypeDescription        string  `json:"type_description"`
 	SetNumber              int32   `json:"set_number"`
