@@ -22,6 +22,6 @@ func UserLoginHandler(service application.UsersService) gin.HandlerFunc {
 		c.SetSameSite(http.SameSiteLaxMode)
 		c.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
 
-		return
+		c.JSON(http.StatusOK, gin.H{"token": tokenString})
 	}
 }
