@@ -17,7 +17,8 @@ func UserLoginHandler(service application.UsersService) gin.HandlerFunc {
 
 		tokenString, err := service.Login(req)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			c.JSON(http.StatusUnauthorized, err.Error())
+			c.Done()
 		}
 		c.SetSameSite(http.SameSiteLaxMode)
 		c.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)

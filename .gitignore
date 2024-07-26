@@ -4,4 +4,4 @@ go.sum
 .DS_Store
 coverage.out
 build-errors.log
-tmp/main
+tmp

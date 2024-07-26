@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"fmt"
 	"github.com/wodm8/wodm8-core/internal/users"
 	"gorm.io/gorm"
 )
@@ -14,6 +15,7 @@ func NewUsersRepository(db *gorm.DB) *UsersRepository {
 }
 
 func (r *UsersRepository) Save(user users.Users) error {
+	fmt.Println("user save:", user)
 	result := r.db.Create(&user)
 	return result.Error
 }
