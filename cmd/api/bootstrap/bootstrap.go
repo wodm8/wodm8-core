@@ -24,13 +24,25 @@ func Run() error {
 	wodSetRepository := storage.NewWodSetRepository(db)
 	wodRoundRepository := storage.NewWodRoundRepository(db)
 	usersRepository := storage.NewUsersRepository(db)
+	membersRepository := storage.NewMembersRepository(db)
 
 	exerciseService := application.NewExerciseService(exerciseRepository)
 
 	wodService := application.NewWodService(wodRepository, wodSetRepository, wodRoundRepository, exerciseWodRepository)
 
-	usersService := application.NewUsersService(usersRepository)
+	usersService := application.NewUsersService(usersRepository, membersRepository)
 
-	ctx, srv := server.New(context.Background(), cfg.HostServer, cfg.PortServer, cfg.ShutdownTimeout, wodService, exerciseService, usersService)
+	membersService := application.NewMemberService(membersRepository)
+
+	ctx, srv := server.New(
+		context.Background(),
+		cfg.HostServer,
+		cfg.PortServer,
+		cfg.ShutdownTimeout,
+		wodService,
+		exerciseService,
+		usersService,
+		membersService,
+	)
 	return srv.Run(ctx)
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/wodm8/wodm8-core/initializers"
+	"github.com/wodm8/wodm8-core/internal/domain"
 	"github.com/wodm8/wodm8-core/internal/users"
 	"net/http"
 	"time"
@@ -44,11 +45,12 @@ func RequireAuth(c *gin.Context) {
 		if user.ID == "" {
 			c.AbortWithStatus(http.StatusUnauthorized)
 		}
-		userMap := make(map[string]string)
-		userMap["id"] = user.ID
-		userMap["email"] = user.Email
-		userMap["first_name"] = user.FirstName
-		userMap["last_name"] = user.LastName
+		userMap := domain.UserContext{
+			ID:        user.ID,
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Email:     user.Email,
+		}
 
 		// Attach the request
 		c.Set("user", userMap)

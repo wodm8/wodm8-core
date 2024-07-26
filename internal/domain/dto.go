@@ -1,5 +1,12 @@
 package domain
 
+type UserContext struct {
+	ID        string `json:"id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email" `
+}
+
 type WodSets struct {
 	SetNumber        uint8  `json:"set_number" binding:"required"`
 	BuyIn            uint16 `json:"buy_in"`
@@ -64,4 +71,17 @@ type CreateUserRequest struct {
 type LoginRequest struct {
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
+}
+
+type MembersRequest struct {
+	ID             string `json:"id" binding:"required"`
+	FirstName      string `json:"first_name"`
+	LastName       string `json:"last_name"`
+	Email          string `json:"email"`
+	Age            uint8  `json:"age"`
+	Gender         string `json:"gender"`
+	City           string `json:"city"`
+	Country        string `json:"country"`
+	ProfilePicture string `json:"profile_picture"`
+	FrontPageImg   string `json:"front_page_img"`
 }

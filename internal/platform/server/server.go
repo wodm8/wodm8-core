@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/wodm8/wodm8-core/internal/platform/server/handler/members"
 	"github.com/wodm8/wodm8-core/internal/platform/server/handler/users"
 	"github.com/wodm8/wodm8-core/kit"
 	"log"
@@ -26,9 +27,10 @@ type Server struct {
 	wodService      application.WodService
 	exerciseService application.ExerciseService
 	usersService    application.UsersService
+	memberService   application.MemberService
 }
 
-func New(ctx context.Context, host string, port int, shutdownTimeout time.Duration, wodService application.WodService, exerciseService application.ExerciseService, usersService application.UsersService) (context.Context, Server) {
+func New(ctx context.Context, host string, port int, shutdownTimeout time.Duration, wodService application.WodService, exerciseService application.ExerciseService, usersService application.UsersService, memberService application.MemberService) (context.Context, Server) {
 	srv := Server{
 		engine:          gin.Default(),
 		httpAddr:        fmt.Sprintf("%s:%d", host, port),
@@ -37,6 +39,7 @@ func New(ctx context.Context, host string, port int, shutdownTimeout time.Durati
 		wodService:      wodService,
 		exerciseService: exerciseService,
 		usersService:    usersService,
+		memberService:   memberService,
 	}
 
 	srv.registerRoutes()
@@ -45,12 +48,14 @@ func New(ctx context.Context, host string, port int, shutdownTimeout time.Durati
 
 func (s *Server) registerRoutes() {
 	s.engine.GET("/health", health.CheckHandler())
-	s.engine.POST("/signup", users.UserSignUpHandler(s.usersService))
+	s.engine.POST("/signup", users.UserSignUpHandler(s.usersService, s.memberService))
 	s.engine.POST("/login", users.UserLoginHandler(s.usersService))
 	s.engine.POST("/api/v1/exercises", kit.RequireAuth, exercise.CreateHandler(s.exerciseService))
 	s.engine.POST("/api/v1/wod", kit.RequireAuth, wod.CreateWodHandler(s.wodService))
 	s.engine.GET("/api/v1/wod", kit.RequireAuth, wod.GetWodHandler(s.wodService))
 	s.engine.GET("/validate", kit.RequireAuth, users.VerifyTokenHandler())
+	s.engine.PUT("/api/v1/members", kit.RequireAuth, members.MemberUpdateHandler(s.memberService))
+	s.engine.GET("/api/v1/members", kit.RequireAuth, members.GetMemberHandler(s.memberService))
 }
 
 func (s *Server) Run(ctx context.Context) error {
