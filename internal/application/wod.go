@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/wodm8/wodm8-core/internal/crossfit"
 	"github.com/wodm8/wodm8-core/internal/domain"
+	"github.com/wodm8/wodm8-core/internal/members"
 )
 
 type ExerciseService struct {
@@ -33,18 +34,22 @@ type WodService struct {
 	exerciseWodRepository crossfit.ExerciseWodRepository
 	setRepository         crossfit.WodSetRepository
 	roundsRepository      crossfit.WodRoundRepository
+	memberWodRepository   crossfit.MemberWodsRepository
+	membersRepository     members.MemberRepository
 }
 
-func NewWodService(wodRepository crossfit.WodRepository, setRepository crossfit.WodSetRepository, roundsRepository crossfit.WodRoundRepository, exerciseWodRepository crossfit.ExerciseWodRepository) WodService {
+func NewWodService(wodRepository crossfit.WodRepository, setRepository crossfit.WodSetRepository, roundsRepository crossfit.WodRoundRepository, exerciseWodRepository crossfit.ExerciseWodRepository, memberWodRepository crossfit.MemberWodsRepository, membersRepository members.MemberRepository) WodService {
 	return WodService{
 		wodRepository:         wodRepository,
 		setRepository:         setRepository,
 		roundsRepository:      roundsRepository,
 		exerciseWodRepository: exerciseWodRepository,
+		memberWodRepository:   memberWodRepository,
+		membersRepository:     membersRepository,
 	}
 }
 
-func (w WodService) CreateWod(ctx *gin.Context, wodDto domain.CreateWodRequest) error {
+func (w WodService) CreateWod(ctx *gin.Context, wodDto domain.CreateWodRequest, userEmail string) error {
 	wod, err := crossfit.NewWod(wodDto.ID, wodDto.Name, wodDto.WodDate, wodDto.WodTypeId)
 	if err != nil {
 		return err
@@ -112,11 +117,31 @@ func (w WodService) CreateWod(ctx *gin.Context, wodDto domain.CreateWodRequest) 
 			return err
 		}
 	}
+
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return err
+	}
+
+	member, err := w.membersRepository.FindByEmail(userEmail)
+	if err != nil {
+		return err
+	}
+
+	memberWod, err := crossfit.NewMemberWod(id.String(), member.ID, wod.ID)
+	if err != nil {
+		return err
+	}
+
+	if err := w.memberWodRepository.Save(memberWod); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (w WodService) GetWod(ctx *gin.Context, id string) ([]domain.CreatedWod, error) {
-	res, err := w.wodRepository.Get(id)
+	res, err := w.wodRepository.FindByMember(id)
 	if err != nil {
 		fmt.Printf("error getting wod: %v", err)
 		return make([]domain.CreatedWod, 0), err

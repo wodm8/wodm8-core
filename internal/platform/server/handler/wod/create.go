@@ -11,6 +11,12 @@ import (
 
 func CreateWodHandler(wodService application.WodService) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		user, _ := ctx.Get("user")
+		userStruct, ok := user.(domain.UserContext)
+		if !ok {
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+		}
+
 		var req domain.CreateWodRequest
 
 		if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -18,7 +24,7 @@ func CreateWodHandler(wodService application.WodService) gin.HandlerFunc {
 			return
 		}
 
-		err := wodService.CreateWod(ctx, req)
+		err := wodService.CreateWod(ctx, req, userStruct.Email)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, err)
 			return

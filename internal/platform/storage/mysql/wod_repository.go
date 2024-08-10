@@ -38,3 +38,15 @@ func (r *WodRepository) Get(id string) ([]domain.CreatedWod, error) {
 	}
 	return createdWods, nil
 }
+
+func (r *WodRepository) FindByMember(id string) ([]domain.CreatedWod, error) {
+	var createdWods []domain.CreatedWod
+	result := r.db.Joins("JOIN member_wods ON member_wods.wod_id = created_wods.wod_id").
+		Where("member_wods.member_id = ?", id).
+		Find(&createdWods)
+	if result.Error != nil {
+		fmt.Printf("error find wods_data by member id: %v", result.Error)
+		return []domain.CreatedWod{}, result.Error
+	}
+	return createdWods, nil
+}
