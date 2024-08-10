@@ -3,14 +3,15 @@ package server
 import (
 	"context"
 	"fmt"
-	"github.com/wodm8/wodm8-core/internal/platform/server/handler/members"
-	"github.com/wodm8/wodm8-core/internal/platform/server/handler/users"
-	"github.com/wodm8/wodm8-core/kit"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/wodm8/wodm8-core/internal/platform/server/handler/members"
+	"github.com/wodm8/wodm8-core/internal/platform/server/handler/users"
+	"github.com/wodm8/wodm8-core/kit"
 
 	"github.com/gin-gonic/gin"
 	"github.com/wodm8/wodm8-core/internal/application"
@@ -52,7 +53,7 @@ func (s *Server) registerRoutes() {
 	s.engine.POST("/login", users.UserLoginHandler(s.usersService))
 	s.engine.POST("/api/v1/exercises", kit.RequireAuth, exercise.CreateHandler(s.exerciseService))
 	s.engine.POST("/api/v1/wod", kit.RequireAuth, wod.CreateWodHandler(s.wodService))
-	s.engine.GET("/api/v1/wod", kit.RequireAuth, wod.GetWodHandler(s.wodService))
+	s.engine.GET("/api/v1/wod/:memberid", kit.RequireAuth, wod.GetWodHandler(s.wodService))
 	s.engine.GET("/validate", kit.RequireAuth, users.VerifyTokenHandler())
 	s.engine.PUT("/api/v1/members", kit.RequireAuth, members.MemberUpdateHandler(s.memberService))
 	s.engine.GET("/api/v1/members", kit.RequireAuth, members.GetMemberHandler(s.memberService))

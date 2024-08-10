@@ -24,6 +24,7 @@ func NewWod(id, wodName, date string, wodTypeId uint8) (Wod, error) {
 type WodRepository interface {
 	Save(wod Wod) error
 	Get(id string) ([]domain.CreatedWod, error)
+	FindByMember(id string) ([]domain.CreatedWod, error)
 }
 
 //go:generate mockery --case=snake --outpkg=storagemocks --output=../platform/storage/storagemocks --name=WodRepository

@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"context"
+
 	"github.com/wodm8/wodm8-core/initializers"
 	"github.com/wodm8/wodm8-core/internal/application"
 	"github.com/wodm8/wodm8-core/internal/platform/server"
@@ -25,10 +26,11 @@ func Run() error {
 	wodRoundRepository := storage.NewWodRoundRepository(db)
 	usersRepository := storage.NewUsersRepository(db)
 	membersRepository := storage.NewMembersRepository(db)
+	memberWodRepository := storage.NewMemberWodRepository(db)
 
 	exerciseService := application.NewExerciseService(exerciseRepository)
 
-	wodService := application.NewWodService(wodRepository, wodSetRepository, wodRoundRepository, exerciseWodRepository)
+	wodService := application.NewWodService(wodRepository, wodSetRepository, wodRoundRepository, exerciseWodRepository, memberWodRepository, membersRepository)
 
 	usersService := application.NewUsersService(usersRepository, membersRepository)
 

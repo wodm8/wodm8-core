@@ -10,9 +10,9 @@ import (
 
 func GetWodHandler(wodService application.WodService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		param := c.Request.URL.Query()
-		fmt.Printf("Param: %v\n", param)
-		response, err := wodService.GetWod(c, param.Get("id"))
+		memberId := c.Param("memberid")
+		fmt.Printf("Param: %v\n", memberId)
+		response, err := wodService.GetWod(c, memberId)
 		if err != nil {
 			c.JSON(http.StatusNotFound, err)
 			return
