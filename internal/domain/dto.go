@@ -85,3 +85,12 @@ type MembersRequest struct {
 	ProfilePicture string `json:"profile_picture"`
 	FrontPageImg   string `json:"front_page_img"`
 }
+
+type CreateBoxRequest struct {
+	ID      string `json:"id" binding:"required"`
+	OwnerId string `json:"owner_id"`
+	Name    string `json:"name"`
+	Address string `json:"address"`
+	Phone   string `json:"phone"`
+	Logo    string `json:"logo"`
+}
