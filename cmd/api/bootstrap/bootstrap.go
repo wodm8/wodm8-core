@@ -27,6 +27,7 @@ func Run() error {
 	usersRepository := storage.NewUsersRepository(db)
 	membersRepository := storage.NewMembersRepository(db)
 	memberWodRepository := storage.NewMemberWodRepository(db)
+	boxRepository := storage.NewBoxRepository(db)
 
 	exerciseService := application.NewExerciseService(exerciseRepository)
 
@@ -35,6 +36,8 @@ func Run() error {
 	usersService := application.NewUsersService(usersRepository, membersRepository)
 
 	membersService := application.NewMemberService(membersRepository)
+
+	boxService := application.NewBoxService(boxRepository, membersRepository)
 
 	ctx, srv := server.New(
 		context.Background(),
@@ -45,6 +48,7 @@ func Run() error {
 		exerciseService,
 		usersService,
 		membersService,
+		boxService,
 	)
 	return srv.Run(ctx)
 }

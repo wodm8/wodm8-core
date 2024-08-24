@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/wodm8/wodm8-core/internal/platform/server/handler/boxes"
 	"github.com/wodm8/wodm8-core/internal/platform/server/handler/members"
 	"github.com/wodm8/wodm8-core/internal/platform/server/handler/users"
 	"github.com/wodm8/wodm8-core/kit"
@@ -29,9 +30,16 @@ type Server struct {
 	exerciseService application.ExerciseService
 	usersService    application.UsersService
 	memberService   application.MemberService
+	boxService      application.BoxService
 }
 
-func New(ctx context.Context, host string, port int, shutdownTimeout time.Duration, wodService application.WodService, exerciseService application.ExerciseService, usersService application.UsersService, memberService application.MemberService) (context.Context, Server) {
+func New(ctx context.Context, host string, port int, shutdownTimeout time.Duration,
+	wodService application.WodService,
+	exerciseService application.ExerciseService,
+	usersService application.UsersService,
+	memberService application.MemberService,
+	boxService application.BoxService) (context.Context, Server) {
+
 	srv := Server{
 		engine:          gin.Default(),
 		httpAddr:        fmt.Sprintf("%s:%d", host, port),
@@ -41,6 +49,7 @@ func New(ctx context.Context, host string, port int, shutdownTimeout time.Durati
 		exerciseService: exerciseService,
 		usersService:    usersService,
 		memberService:   memberService,
+		boxService:      boxService,
 	}
 
 	srv.registerRoutes()
@@ -57,6 +66,7 @@ func (s *Server) registerRoutes() {
 	s.engine.GET("/validate", kit.RequireAuth, users.VerifyTokenHandler())
 	s.engine.PUT("/api/v1/members", kit.RequireAuth, members.MemberUpdateHandler(s.memberService))
 	s.engine.GET("/api/v1/members", kit.RequireAuth, members.GetMemberHandler(s.memberService))
+	s.engine.POST("/api/v1/boxes", kit.RequireAuth, boxes.CreateBoxHandler(s.boxService))
 }
 
 func (s *Server) Run(ctx context.Context) error {
